@@ -1,0 +1,16 @@
+{"problem": "What is 12 * 12?", "reasoning": "12 times 12 is 144.", "answer": "144"}
+{"problem": "What is 7 + 8?", "reasoning": "7 plus 8 equals 15.", "answer": "15"}
+{"problem": "What is 9 + 10?", "reasoning": "9 plus 10 equals 19.", "answer": "19"}
+{"problem": "What is 6 * 7?", "reasoning": "6 times 7 is 42.", "answer": "42"}
+{"problem": "What is 100 - 1?", "reasoning": "100 minus 1 is 99.", "answer": "99"}
+{"problem": "What is 5 squared?", "reasoning": "5 squared means 5 times 5, which is 25.", "answer": "25"}
+{"problem": "What is 3 * 4?", "reasoning": "3 times 4 is 12.", "answer": "12"}
+{"problem": "What is 10 + 5?", "reasoning": "10 plus 5 equals 15.", "answer": "15"}
+{"problem": "What is 8 * 8?", "reasoning": "8 times 8 is 64.", "answer": "64"}
+{"problem": "What is 20 / 4?", "reasoning": "20 divided by 4 is 5.", "answer": "5"}
+{"problem": "What is 11 + 11?", "reasoning": "11 plus 11 equals 22.", "answer": "22"}
+{"problem": "What is the remainder when 10 is divided by 3?", "reasoning": "10 = 3*3 + 1, so the remainder is 1.", "answer": "1"}
+{"problem": "What is 2 to the power 5?", "reasoning": "2^5 = 2*2*2*2*2 = 32.", "answer": "32"}
+{"problem": "What is 15 - 7?", "reasoning": "15 minus 7 equals 8.", "answer": "8"}
+{"problem": "What is 9 * 9?", "reasoning": "9 times 9 is 81.", "answer": "81"}
+{"problem": "What is 1 + 1?", "reasoning": "1 plus 1 equals 2.", "answer": "2"}

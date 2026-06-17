@@ -1,0 +1,35 @@
+# Training configuration for the VibeThinker-3B replica.
+#
+# Two scales:
+#   * preset "tiny"          -> trains on CPU in seconds (used by the e2e test)
+#   * preset "vibethinker-3b"-> real dimensions; needs GPU(s) + real data
+#
+# The architecture presets live in onaai.modeling.PRESETS.
+
+arch_preset: "tiny"          # "tiny" | "vibethinker-3b"
+
+data:
+  sft: "data/sample_sft.jsonl"
+  rl: "data/sample_rl.jsonl"
+
+tokenizer:
+  # "tiny"  -> train a small byte-level BPE from the sample data (offline)
+  # a path  -> load a real vendored tokenizer (scripts/download_model.py)
+  source: "tiny"
+  vocab_size: 2000
+
+sft:
+  output_dir: "checkpoints/sft"
+  epochs: 3.0
+  batch_size: 2
+  learning_rate: 0.0005
+  max_length: 256
+
+rl:
+  output_dir: "checkpoints/rl"
+  group_size: 4
+  learning_rate: 0.0001
+  epochs: 1
+  max_new_tokens: 40
+  temperature: 1.0
+  top_p: 0.95

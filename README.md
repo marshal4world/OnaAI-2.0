@@ -101,6 +101,68 @@ onaai serve --host 127.0.0.1 --port 8000
 
 > 🔒 **Security note:** the bundled server has **no authentication**. Bind it to `127.0.0.1` (the default) and do not expose it to a public network without adding an auth layer / reverse proxy.
 
+## Training a replica (SFT → RL)
+
+OnaAI-2.0 includes a runnable replica of VibeThinker's architecture and
+**Spectrum-to-Signal** training recipe. Two scales share the same code:
+
+| Scale | Model | Tokenizer | Runs on |
+| ----- | ----- | --------- | ------- |
+| `tiny` | ~100K-param Qwen2-arch (random init) | small BPE trained on the data | **CPU, seconds** |
+| `vibethinker-3b` | real ~3B Qwen2 dims | real vendored tokenizer | GPU(s) |
+
+> ⚠️ This reproduces the **architecture + tokenizer + training pipeline**, not
+> the real trained weights. VibeThinker's SSP corpus is private, so bring your
+> own verifiable-reasoning data (see [`data/README.md`](./data/README.md)).
+> Building from a preset yields *fresh random weights*; to start from the real
+> pretrained model, vendor it first (above) and point the scripts at that dir.
+
+### 1. Build a tiny replica (tokenizer + model)
+
+```bash
+python scripts/build_tiny_replica.py --out models/tiny-replica
+```
+
+### 2. SFT — the "Spectrum" phase
+
+Supervised fine-tuning on `{problem, reasoning, answer}` data. The target is
+`<think>{reasoning}</think>\boxed{answer}`, and prompt tokens are masked so the
+loss only covers the completion.
+
+```bash
+python scripts/train_sft.py --model models/tiny-replica --out checkpoints/sft
+```
+
+### 3. RL — the "Signal" phase (GRPO-style)
+
+Group Relative Policy Optimization with a **verifiable reward** (the model is
+rewarded only when its extracted `\boxed{}` answer matches the ground truth).
+This is the open analogue of VibeThinker's MGPO.
+
+```bash
+python scripts/train_rl.py --model checkpoints/sft --out checkpoints/rl
+```
+
+### End-to-end test
+
+The full pipeline (build tokenizer → build model → save/reload → SFT → RL →
+generate → parse + reward) runs as a CPU test in a few seconds:
+
+```bash
+PYTHONPATH=src pytest tests/test_end_to_end.py -q
+```
+
+### Scaling to the real 3B
+
+```bash
+# 1. vendor the real tokenizer (+ optionally weights)
+python scripts/download_model.py
+# 2. build at real dimensions, or fine-tune the real weights directly
+python scripts/build_tiny_replica.py --preset vibethinker-3b \
+    --vocab-size 151936 --out models/vibethinker-3b-fresh
+# 3. SFT / RL with your own large verifiable dataset on GPU(s)
+```
+
 ## Configuration
 
 Defaults live in `config/default.yaml`. Override with a `--config path.yaml` flag,
@@ -125,19 +187,39 @@ OnaAI-2.0/
 ├── requirements.txt
 ├── .gitignore
 ├── config/
-│   └── default.yaml
+│   ├── default.yaml     # inference defaults
+│   └── train.yaml       # training (SFT + RL) config
+├── data/
+│   ├── README.md        # dataset schema docs
+│   ├── sample_sft.jsonl # sample SFT data (problem/reasoning/answer)
+│   └── sample_rl.jsonl  # sample RL data (problem/answer)
+├── scripts/
+│   ├── download_model.py     # vendor real tokenizer + weights locally
+│   ├── build_tiny_replica.py # build tiny tokenizer + model
+│   ├── train_sft.py          # run SFT
+│   └── train_rl.py           # run GRPO-style RL
 ├── src/onaai/
 │   ├── __init__.py
 │   ├── config.py        # config loading + env overrides
-│   ├── model.py         # VibeThinker-3B wrapper (transformers/vLLM)
+│   ├── model.py         # VibeThinker-3B inference wrapper (transformers/vLLM)
+│   ├── modeling.py      # build Qwen2-arch replica (3B + tiny presets)
 │   ├── engine.py        # ReasoningEngine: answer extraction
 │   ├── cli.py           # `onaai` command
-│   └── server.py        # optional FastAPI app
+│   ├── server.py        # optional FastAPI app
+│   └── training/
+│       ├── data.py            # JSONL loader + prompt-masked tokenization
+│       ├── reward.py          # verifiable reward (boxed-answer match)
+│       ├── sft.py             # SFT trainer
+│       ├── rl.py              # GRPO-style RL loop
+│       └── tokenizer_utils.py # load real / train tiny tokenizer
 ├── examples/
 │   └── solve_math.py
 └── tests/
     ├── test_config.py
-    └── test_engine.py
+    ├── test_engine.py
+    ├── test_reward.py
+    ├── test_training_data.py
+    └── test_end_to_end.py     # full pipeline on CPU
 ```
 
 ## License
