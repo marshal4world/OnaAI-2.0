@@ -3,6 +3,7 @@ transformers>=4.54.0
 torch>=2.1.0
 accelerate>=0.30.0
 pyyaml>=6.0
+huggingface_hub>=0.23.0
 
 # Optional fast-inference backend (install manually if you want it):
 #   vllm==0.10.1

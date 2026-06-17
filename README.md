@@ -46,6 +46,27 @@ pip install -e .
 pip install -e ".[server]"
 ```
 
+## Vendoring the model locally (download tokenizer + weights)
+
+By default OnaAI-2.0 pulls `WeiboAI/VibeThinker-3B` from the Hugging Face Hub on
+first use and caches it. To keep the tokenizer files and weights on local disk
+(e.g. for offline/air-gapped use), vendor them into `models/`:
+
+```bash
+# Full model + tokenizer -> ./models/VibeThinker-3B   (several GB)
+python scripts/download_model.py
+
+# Tokenizer + config only (fast, no weights) -- handy for building the
+# data/training pipeline before downloading the full weights:
+python scripts/download_model.py --tokenizer-only
+
+# Then point OnaAI-2.0 at the local copy:
+export ONAAI_MODEL_PATH=models/VibeThinker-3B
+```
+
+> Weights are git-ignored (`*.safetensors`, `models/`). Never commit multi-GB
+> weights into the repo — keep them on disk or use the HF Hub / Git LFS.
+
 ## Quick start
 
 ### CLI — one-shot
