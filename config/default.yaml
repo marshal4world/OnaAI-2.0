@@ -1,0 +1,18 @@
+# OnaAI-2.0 default configuration.
+# Override any key with an env var prefixed ONAAI_ (e.g. ONAAI_MODEL_PATH),
+# or pass a custom YAML file via `--config`.
+
+# Hugging Face repo id or a local path to the model weights.
+model_path: "WeiboAI/VibeThinker-3B"
+
+# Inference backend: "transformers" or "vllm".
+backend: "transformers"
+
+# Compute dtype for the transformers backend.
+dtype: "bfloat16"
+
+# Sampling parameters (defaults follow the VibeThinker-3B technical report).
+temperature: 1.0
+top_p: 0.95
+top_k: -1          # -1 disables top-k (vLLM / SGLang convention)
+max_new_tokens: 40960

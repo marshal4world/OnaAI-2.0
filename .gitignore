@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Testing / tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Model weights & caches (never commit large weights)
+*.safetensors
+*.bin
+*.gguf
+models/
+checkpoints/
+.cache/
+.hf_cache/
+
+# Local config / secrets
+.env
+*.local.yaml
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

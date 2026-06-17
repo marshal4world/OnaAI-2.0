@@ -1,0 +1,12 @@
+# Core inference dependencies
+transformers>=4.54.0
+torch>=2.1.0
+accelerate>=0.30.0
+pyyaml>=6.0
+
+# Optional fast-inference backend (install manually if you want it):
+#   vllm==0.10.1
+
+# Optional API server (also available via the "server" extra):
+#   fastapi>=0.110.0
+#   uvicorn>=0.29.0

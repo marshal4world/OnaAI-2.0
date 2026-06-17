@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "onaai"
+version = "2.0.0"
+description = "OnaAI-2.0 — a verifiable-reasoning assistant built on top of VibeThinker-3B"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "OnaAI-2.0 contributors" }]
+keywords = ["llm", "reasoning", "vibethinker", "math", "code"]
+
+dependencies = [
+    "transformers>=4.54.0",
+    "torch>=2.1.0",
+    "accelerate>=0.30.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+server = ["fastapi>=0.110.0", "uvicorn>=0.29.0"]
+vllm = ["vllm==0.10.1"]
+dev = ["pytest>=7.0", "ruff>=0.4.0"]
+
+[project.scripts]
+onaai = "onaai.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+onaai = ["../config/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
