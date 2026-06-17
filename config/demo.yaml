@@ -1,0 +1,19 @@
+# OnaAI-2.0 demo configuration.
+# A real, small, pretrained model (Qwen2.5-0.5B-Instruct, the architecture
+# lineage VibeThinker-3B is built on) that actually solves simple math and
+# coding on CPU. Vendor it first:
+#
+#   python scripts/download_model.py --repo Qwen/Qwen2.5-0.5B-Instruct
+#
+# Then run, e.g.:
+#   onaai solve "What is 12 * 12?" --config config/demo.yaml
+
+model_path: "models/Qwen2.5-0.5B-Instruct"
+backend: "transformers"
+dtype: "bfloat16"
+
+# Greedy decoding for deterministic, demo-friendly answers.
+temperature: 0.0
+top_p: 0.95
+top_k: -1
+max_new_tokens: 512

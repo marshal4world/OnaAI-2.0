@@ -95,15 +95,22 @@ class VibeThinkerModel:
         )
         model_inputs = self._tokenizer([text], return_tensors="pt").to(self._model.device)
 
-        # transformers expects top_k=None (not -1) to disable top-k sampling.
+        # temperature <= 0 means greedy decoding (do_sample=False). Passing
+        # temperature/top_p with sampling disabled is invalid in transformers.
         top_k = params["top_k"]
-        gen_config = GenerationConfig(
-            max_new_tokens=params["max_new_tokens"],
-            do_sample=True,
-            temperature=params["temperature"],
-            top_p=params["top_p"],
-            top_k=None if top_k is not None and top_k < 0 else top_k,
-        )
+        if params["temperature"] and params["temperature"] > 0:
+            gen_config = GenerationConfig(
+                max_new_tokens=params["max_new_tokens"],
+                do_sample=True,
+                temperature=params["temperature"],
+                top_p=params["top_p"],
+                top_k=None if top_k is not None and top_k < 0 else top_k,
+            )
+        else:
+            gen_config = GenerationConfig(
+                max_new_tokens=params["max_new_tokens"],
+                do_sample=False,
+            )
         generated = self._model.generate(**model_inputs, generation_config=gen_config)
         trimmed = [
             out[len(inp):] for inp, out in zip(model_inputs.input_ids, generated)
