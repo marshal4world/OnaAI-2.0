@@ -38,6 +38,10 @@ class GRPOConfig:
     top_p: float = 0.95
     adv_eps: float = 1e-6
     seed: int = 0
+    # Periodic evaluation (pass@k / accuracy) on a held-out set during training.
+    eval_every: int = 0          # run eval every N optimizer steps (0 = disabled)
+    eval_k: int = 1
+    eval_n_samples: int = 4
 
 
 def _completion_logprobs(model, input_ids, attention_mask, prompt_len, completion_mask):
@@ -59,14 +63,47 @@ def _completion_logprobs(model, input_ids, attention_mask, prompt_len, completio
     return summed / counts                                           # mean logprob / token
 
 
+def _run_eval(model, tokenizer, eval_examples, config: "GRPOConfig", step: int) -> dict:
+    """Run held-out pass@k/accuracy eval mid-training; returns a metrics record."""
+    # Local import avoids a circular dependency (onaai.eval imports onaai.training).
+    from ..eval import EvalConfig, evaluate
+
+    was_training = model.training
+    eval_cfg = EvalConfig(
+        k=config.eval_k,
+        n_samples=config.eval_n_samples,
+        max_new_tokens=config.max_new_tokens,
+        max_prompt_length=config.max_prompt_length,
+        temperature=config.temperature,
+        top_p=config.top_p,
+        seed=config.seed,
+    )
+    result = evaluate(model, tokenizer, eval_examples, eval_cfg)
+    if was_training:
+        model.train()
+    return {
+        "step": step,
+        "pass_at_k": result.pass_at_k,
+        "accuracy": result.accuracy,
+        "k": result.k,
+        "n_samples": result.n_samples,
+    }
+
+
 def grpo_train(
     model,
     tokenizer,
     examples: List[RLExample],
     reward_fn: Optional[RewardFn] = None,
     config: Optional[GRPOConfig] = None,
+    eval_examples: Optional[List[RLExample]] = None,
 ):
-    """Run GRPO-style RL. Returns a metrics dict (per-step mean rewards)."""
+    """Run GRPO-style RL. Returns a metrics dict (per-step rewards/losses).
+
+    If ``config.eval_every > 0`` and ``eval_examples`` is provided, pass@k and
+    accuracy are measured on the held-out set every ``eval_every`` optimizer
+    steps and recorded under ``history["eval"]``.
+    """
     import torch
     from transformers import GenerationConfig
 
@@ -89,7 +126,9 @@ def grpo_train(
         pad_token_id=pad_id,
     )
 
-    history = {"step_reward": [], "step_loss": []}
+    do_eval = bool(config.eval_every and config.eval_every > 0 and eval_examples)
+    history = {"step_reward": [], "step_loss": [], "eval": []}
+    step = 0
     model.train()
 
     for _ in range(config.epochs):
@@ -151,11 +190,23 @@ def grpo_train(
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
+            step += 1
 
             history["step_reward"].append(rewards_t.mean().item())
             history["step_loss"].append(loss.item())
 
+            # --- periodic held-out evaluation ---
+            if do_eval and step % config.eval_every == 0:
+                history["eval"].append(
+                    _run_eval(model, tokenizer, eval_examples, config, step)
+                )
+                model.train()
+
     model.eval()
+    # Final evaluation snapshot (if enabled and not already taken at this step).
+    if do_eval and (not history["eval"] or history["eval"][-1]["step"] != step):
+        history["eval"].append(_run_eval(model, tokenizer, eval_examples, config, step))
+
     history["mean_reward"] = (
         sum(history["step_reward"]) / len(history["step_reward"])
         if history["step_reward"]

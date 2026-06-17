@@ -26,6 +26,10 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--epochs", type=int, default=1)
     p.add_argument("--lr", type=float, default=1e-4)
     p.add_argument("--max-new-tokens", type=int, default=40)
+    p.add_argument("--eval-data", default=None, help="optional held-out set for periodic eval")
+    p.add_argument("--eval-every", type=int, default=0, help="eval every N steps (0=off)")
+    p.add_argument("--eval-k", type=int, default=1)
+    p.add_argument("--eval-n-samples", type=int, default=4)
     return p
 
 
@@ -37,18 +41,26 @@ def main(argv=None) -> int:
     model = AutoModelForCausalLM.from_pretrained(args.model)
 
     examples = load_rl_jsonl(args.rl_data)
+    eval_examples = load_rl_jsonl(args.eval_data) if args.eval_data else None
     cfg = GRPOConfig(
         group_size=args.group_size,
         epochs=args.epochs,
         learning_rate=args.lr,
         max_new_tokens=args.max_new_tokens,
+        eval_every=args.eval_every,
+        eval_k=args.eval_k,
+        eval_n_samples=args.eval_n_samples,
     )
-    history = grpo_train(model, tokenizer, examples, config=cfg)
+    history = grpo_train(model, tokenizer, examples, config=cfg, eval_examples=eval_examples)
 
     Path(args.out).mkdir(parents=True, exist_ok=True)
     model.save_pretrained(args.out)
     tokenizer.save_pretrained(args.out)
-    print(f"RL complete. mean_reward={history['mean_reward']:.3f}. Saved to {args.out}")
+    msg = f"RL complete. mean_reward={history['mean_reward']:.3f}."
+    if history.get("eval"):
+        last = history["eval"][-1]
+        msg += f" final pass@{last['k']}={last['pass_at_k']:.3f} acc={last['accuracy']:.3f}."
+    print(msg + f" Saved to {args.out}")
     return 0
 
 

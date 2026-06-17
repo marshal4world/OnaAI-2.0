@@ -143,6 +143,34 @@ This is the open analogue of VibeThinker's MGPO.
 python scripts/train_rl.py --model checkpoints/sft --out checkpoints/rl
 ```
 
+You can monitor held-out **pass@k / accuracy during RL** by passing an eval set;
+metrics are recorded under `history["eval"]` and a final snapshot is printed:
+
+```bash
+python scripts/train_rl.py --model checkpoints/sft --out checkpoints/rl \
+    --eval-data data/sample_eval.jsonl --eval-every 10 --eval-k 1 --eval-n-samples 4
+```
+
+#### TRL-based GRPO (alternative backend)
+
+For a production RL backend, `onaai.training.grpo_trl.grpo_train_trl` is a
+drop-in that delegates to Hugging Face **TRL**'s `GRPOTrainer` while reusing
+OnaAI's verifiable reward:
+
+```bash
+pip install -e ".[trl]"
+```
+
+```python
+from onaai.training.grpo_trl import grpo_train_trl, TRLGRPOSettings
+grpo_train_trl(model, tokenizer, examples, TRLGRPOSettings(num_generations=8))
+```
+
+> The built-in `grpo_train` runs anywhere (incl. CPU). The TRL path needs a
+> TRL-capable environment; some TRL versions also require a generation backend
+> (e.g. vLLM). If TRL's `GRPOTrainer` can't be imported, `grpo_train_trl` raises
+> a clear `TRLUnavailableError` pointing you back to the built-in loop.
+
 ### End-to-end test
 
 The full pipeline (build tokenizer → build model → save/reload → SFT → RL →

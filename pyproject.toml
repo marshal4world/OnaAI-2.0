@@ -24,6 +24,7 @@ dependencies = [
 server = ["fastapi>=0.110.0", "uvicorn>=0.29.0"]
 vllm = ["vllm==0.10.1"]
 train = ["accelerate>=0.26.0", "tokenizers>=0.20.0"]
+trl = ["trl>=0.17.0", "datasets>=2.16.0"]
 dev = ["pytest>=7.0", "ruff>=0.4.0"]
 
 [project.scripts]
