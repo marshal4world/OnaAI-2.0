@@ -152,6 +152,27 @@ generate → parse + reward) runs as a CPU test in a few seconds:
 PYTHONPATH=src pytest tests/test_end_to_end.py -q
 ```
 
+### Evaluation (pass@k + accuracy)
+
+Evaluate a model on a held-out verifiable set. A completion counts as correct
+iff its extracted `\boxed{}` answer matches the ground truth — the same signal
+used by the RL reward. `pass@k` uses the **unbiased estimator** from the Codex
+paper (`1 - C(n-c, k) / C(n, k)`).
+
+```bash
+python scripts/evaluate.py --model checkpoints/rl \
+    --eval-data data/sample_eval.jsonl --k 1 --n-samples 4
+# -> examples=8  pass@1=0.000  accuracy(sample@1)=0.000  (n_samples=4)
+```
+
+Programmatic use:
+
+```python
+from onaai.eval import evaluate, EvalConfig
+result = evaluate(model, tokenizer, examples, EvalConfig(k=4, n_samples=8))
+print(result.summary())
+```
+
 ### Scaling to the real 3B
 
 ```bash
@@ -197,7 +218,8 @@ OnaAI-2.0/
 │   ├── download_model.py     # vendor real tokenizer + weights locally
 │   ├── build_tiny_replica.py # build tiny tokenizer + model
 │   ├── train_sft.py          # run SFT
-│   └── train_rl.py           # run GRPO-style RL
+│   ├── train_rl.py           # run GRPO-style RL
+│   └── evaluate.py           # pass@k + accuracy on a held-out set
 ├── src/onaai/
 │   ├── __init__.py
 │   ├── config.py        # config loading + env overrides
@@ -206,12 +228,14 @@ OnaAI-2.0/
 │   ├── engine.py        # ReasoningEngine: answer extraction
 │   ├── cli.py           # `onaai` command
 │   ├── server.py        # optional FastAPI app
-│   └── training/
-│       ├── data.py            # JSONL loader + prompt-masked tokenization
-│       ├── reward.py          # verifiable reward (boxed-answer match)
-│       ├── sft.py             # SFT trainer
-│       ├── rl.py              # GRPO-style RL loop
-│       └── tokenizer_utils.py # load real / train tiny tokenizer
+│   ├── training/
+│   │   ├── data.py            # JSONL loader + prompt-masked tokenization
+│   │   ├── reward.py          # verifiable reward (boxed-answer match)
+│   │   ├── sft.py             # SFT trainer
+│   │   ├── rl.py              # GRPO-style RL loop
+│   │   └── tokenizer_utils.py # load real / train tiny tokenizer
+│   └── eval/
+│       └── evaluate.py        # unbiased pass@k estimator + evaluate()
 ├── examples/
 │   └── solve_math.py
 └── tests/
@@ -219,6 +243,7 @@ OnaAI-2.0/
     ├── test_engine.py
     ├── test_reward.py
     ├── test_training_data.py
+    ├── test_eval.py
     └── test_end_to_end.py     # full pipeline on CPU
 ```
 
