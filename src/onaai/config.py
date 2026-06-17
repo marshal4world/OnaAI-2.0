@@ -29,7 +29,7 @@ _PACKAGED_DEFAULT = Path(__file__).resolve().parents[2] / "config" / "default.ya
 class Config:
     """Runtime configuration for OnaAI-2.0."""
 
-    model_path: str = "WeiboAI/VibeThinker-3B"
+    model_path: str = "models/Qwen2.5-0.5B-Instruct"
     backend: str = "transformers"  # "transformers" | "vllm"
     dtype: str = "bfloat16"
     temperature: float = 1.0

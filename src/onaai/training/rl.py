@@ -1,9 +1,8 @@
-"""GRPO-style reinforcement learning (the "Signal" phase).
+"""GRPO-style reinforcement learning (the "signal" phase).
 
-VibeThinker amplifies correct reasoning with a verifiable-reward RL stage
-(their MGPO). MGPO is a custom max-entropy variant; here we implement the
-closely-related, widely-used **GRPO** (Group Relative Policy Optimization)
-idea in a compact, dependency-light form:
+This stage amplifies correct reasoning with a verifiable-reward RL step. We
+implement the widely-used **GRPO** (Group Relative Policy Optimization) idea in
+a compact, dependency-light form:
 
   1. For each prompt, sample a *group* of G completions from the current policy.
   2. Score each completion with the verifiable reward.

@@ -1,4 +1,4 @@
-"""End-to-end test for the VibeThinker-3B replica.
+"""End-to-end test for the OnaAI-2.0 model replica.
 
 Exercises the entire pipeline on CPU with a tiny tokenizer + tiny model:
 

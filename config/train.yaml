@@ -1,12 +1,12 @@
-# Training configuration for the VibeThinker-3B replica.
+# Training configuration for the OnaAI-2.0 model replica.
 #
 # Two scales:
-#   * preset "tiny"          -> trains on CPU in seconds (used by the e2e test)
-#   * preset "vibethinker-3b"-> real dimensions; needs GPU(s) + real data
+#   * preset "tiny"     -> trains on CPU in seconds (used by the e2e test)
+#   * preset "onaai-3b" -> real dimensions; needs GPU(s) + real data
 #
 # The architecture presets live in onaai.modeling.PRESETS.
 
-arch_preset: "tiny"          # "tiny" | "vibethinker-3b"
+arch_preset: "tiny"          # "tiny" | "onaai-3b"
 
 data:
   sft: "data/sample_sft.jsonl"

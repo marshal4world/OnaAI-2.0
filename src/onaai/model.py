@@ -1,4 +1,4 @@
-"""Model wrapper around VibeThinker-3B.
+"""Model wrapper around the OnaAI-2.0 reasoning model.
 
 Supports two backends:
   * ``transformers`` — works everywhere, simplest to set up.
@@ -16,8 +16,8 @@ from typing import List, Optional
 from .config import Config
 
 
-class VibeThinkerModel:
-    """Thin, backend-agnostic wrapper around the VibeThinker-3B model."""
+class ReasoningModel:
+    """Thin, backend-agnostic wrapper around the OnaAI-2.0 reasoning model."""
 
     def __init__(self, config: Optional[Config] = None) -> None:
         self.config = config or Config()
@@ -29,7 +29,7 @@ class VibeThinkerModel:
     # ------------------------------------------------------------------ #
     # Loading
     # ------------------------------------------------------------------ #
-    def load(self) -> "VibeThinkerModel":
+    def load(self) -> "ReasoningModel":
         """Load model weights into memory. Idempotent."""
         if self._loaded:
             return self

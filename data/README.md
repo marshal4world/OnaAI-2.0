@@ -1,7 +1,6 @@
-# Datasets for the OnaAI-2.0 / VibeThinker-3B replica
+# Datasets for the OnaAI-2.0 model replica
 
-VibeThinker's training corpus (the SSP data) was **not** publicly released, so
-this directory ships small **sample** datasets that demonstrate the *schema* and
+This directory ships small **sample** datasets that demonstrate the *schema* and
 make the training pipeline runnable end-to-end. Replace them with your own
 verifiable-reasoning data to train at scale.
 
@@ -62,6 +61,6 @@ generates candidate completions, and the **verifiable reward**
 1. Produce JSONL files matching the schemas above.
 2. Point the training configs/scripts at them
    (`--sft-data path.jsonl`, `--rl-data path.jsonl`).
-3. For the SFT "diversity" phase that VibeThinker emphasizes, include multiple
-   distinct reasoning traces per problem (different solution paths, same
-   answer) — this is the "Spectrum" half of Spectrum-to-Signal.
+3. For the SFT diversity ("spectrum") phase, include multiple distinct
+   reasoning traces per problem (different solution paths, same answer) — this
+   is the "spectrum" half of the SFT → RL recipe.

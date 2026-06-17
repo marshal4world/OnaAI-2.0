@@ -18,7 +18,7 @@ from onaai.training.rl import GRPOConfig, grpo_train  # noqa: E402
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description="GRPO-style RL for a VibeThinker replica.")
+    p = argparse.ArgumentParser(description="GRPO-style RL for an OnaAI-2.0 replica.")
     p.add_argument("--model", required=True, help="local model dir (tokenizer + weights)")
     p.add_argument("--rl-data", default="data/sample_rl.jsonl")
     p.add_argument("--out", default="checkpoints/rl")

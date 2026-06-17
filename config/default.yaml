@@ -3,7 +3,8 @@
 # or pass a custom YAML file via `--config`.
 
 # Hugging Face repo id or a local path to the model weights.
-model_path: "WeiboAI/VibeThinker-3B"
+# Defaults to the small, CPU-friendly model produced by scripts/download_model.py.
+model_path: "models/Qwen2.5-0.5B-Instruct"
 
 # Inference backend: "transformers" or "vllm".
 backend: "transformers"
@@ -11,7 +12,7 @@ backend: "transformers"
 # Compute dtype for the transformers backend.
 dtype: "bfloat16"
 
-# Sampling parameters (defaults follow the VibeThinker-3B technical report).
+# Sampling parameters (tuned for long chain-of-thought reasoning).
 temperature: 1.0
 top_p: 0.95
 top_k: -1          # -1 disables top-k (vLLM / SGLang convention)

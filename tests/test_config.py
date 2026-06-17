@@ -7,7 +7,7 @@ from onaai.config import Config, load_config
 
 def test_defaults():
     cfg = Config()
-    assert cfg.model_path == "WeiboAI/VibeThinker-3B"
+    assert cfg.model_path == "models/Qwen2.5-0.5B-Instruct"
     assert cfg.backend == "transformers"
     assert cfg.top_k == -1
 
@@ -23,10 +23,10 @@ def test_validation_rejects_bad_temperature():
 
 
 def test_env_override(monkeypatch):
-    monkeypatch.setenv("ONAAI_MODEL_PATH", "/local/models/vibethinker")
+    monkeypatch.setenv("ONAAI_MODEL_PATH", "/local/models/onaai")
     monkeypatch.setenv("ONAAI_MAX_NEW_TOKENS", "1024")
     cfg = load_config()
-    assert cfg.model_path == "/local/models/vibethinker"
+    assert cfg.model_path == "/local/models/onaai"
     assert cfg.max_new_tokens == 1024  # coerced to int
 
 

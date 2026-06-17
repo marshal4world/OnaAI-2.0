@@ -1,4 +1,4 @@
-"""Training pipeline for the VibeThinker-3B replica (SSP-style: SFT then RL)."""
+"""Training pipeline for the OnaAI-2.0 model replica (SFT then RL)."""
 
 from .data import (
     SFTExample,

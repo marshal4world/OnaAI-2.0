@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a tiny, randomly-initialized VibeThinker-style replica.
+"""Build a tiny, randomly-initialized OnaAI-2.0 model replica.
 
 Creates a small byte-level BPE tokenizer (trained on the sample data) and a
 tiny Qwen2-architecture model, and saves both to a local directory so the
@@ -29,7 +29,7 @@ from onaai.training.tokenizer_utils import (  # noqa: E402
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description="Build a tiny VibeThinker replica.")
+    p = argparse.ArgumentParser(description="Build a tiny OnaAI-2.0 model replica.")
     p.add_argument("--out", default="models/tiny-replica", help="output directory")
     p.add_argument("--sft-data", default="data/sample_sft.jsonl")
     p.add_argument("--rl-data", default="data/sample_rl.jsonl")

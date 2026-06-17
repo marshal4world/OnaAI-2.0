@@ -18,7 +18,7 @@ from onaai.training.sft import SFTConfig, train_sft  # noqa: E402
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description="SFT a VibeThinker replica.")
+    p = argparse.ArgumentParser(description="SFT an OnaAI-2.0 replica.")
     p.add_argument("--model", required=True, help="local model dir (tokenizer + weights)")
     p.add_argument("--sft-data", default="data/sample_sft.jsonl")
     p.add_argument("--out", default="checkpoints/sft")

@@ -1,4 +1,4 @@
-"""Dataset loading + formatting for the VibeThinker-3B replica.
+"""Dataset loading + formatting for the OnaAI-2.0 model replica.
 
 Pure-Python record handling (loading, validation, message/target construction)
 is kept separate from tokenization so it can be unit-tested without torch or a

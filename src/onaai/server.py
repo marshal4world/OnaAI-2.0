@@ -40,8 +40,8 @@ def create_app(config: Optional[Config] = None):
         if state["engine"] is None:
             cfg = config or Config()
             state["engine"] = ReasoningEngine(__import__(
-                "onaai.model", fromlist=["VibeThinkerModel"]
-            ).VibeThinkerModel(cfg), cfg)
+                "onaai.model", fromlist=["ReasoningModel"]
+            ).ReasoningModel(cfg), cfg)
         return state["engine"]
 
     @app.get("/health")

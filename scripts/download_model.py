@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Vendor VibeThinker-3B (tokenizer + weights) into a local directory.
+"""Vendor the base reasoning model (tokenizer + weights) into a local directory.
 
 This is part C of OnaAI-2.0: pull the tokenizer files (tokenizer.json,
 tokenizer_config.json, special_tokens_map.json, vocab/merges, ...) and the
@@ -8,15 +8,16 @@ everything lives on local disk.
 
 Examples
 --------
-    # Download the full model + tokenizer into ./models/VibeThinker-3B
+    # Download the default small, CPU-friendly model + tokenizer into
+    # ./models/Qwen2.5-0.5B-Instruct
     python scripts/download_model.py
 
     # Tokenizer + config only (fast; no multi-GB weights) -- useful for
     # building the data pipeline before committing to a full download.
     python scripts/download_model.py --tokenizer-only
 
-    # Custom repo / destination
-    python scripts/download_model.py --repo WeiboAI/VibeThinker-3B --dest /data/models
+    # Custom repo / destination (e.g. a larger model on GPU hardware)
+    python scripts/download_model.py --repo <org>/<model> --dest /data/models
 
 Notes
 -----
@@ -52,8 +53,8 @@ WEIGHT_PATTERNS = [
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description="Vendor VibeThinker-3B locally.")
-    p.add_argument("--repo", default="WeiboAI/VibeThinker-3B", help="HF repo id")
+    p = argparse.ArgumentParser(description="Vendor the base reasoning model locally.")
+    p.add_argument("--repo", default="Qwen/Qwen2.5-0.5B-Instruct", help="HF repo id")
     p.add_argument("--dest", default="models", help="destination root directory")
     p.add_argument(
         "--tokenizer-only",

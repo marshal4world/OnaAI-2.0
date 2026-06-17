@@ -1,6 +1,6 @@
 # OnaAI-2.0
 
-OnaAI-2.0 is a lightweight reasoning assistant built **on top of [VibeThinker-3B](https://github.com/WeiboAI/VibeThinker)** — a 3-billion-parameter dense reasoning model from WeiboAI that targets *verifiable* reasoning (competition math, competitive programming, and STEM).
+OnaAI-2.0 is a lightweight reasoning assistant built around a **3-billion-parameter dense reasoning model** that targets *verifiable* reasoning (competition math, competitive programming, and STEM).
 
 OnaAI-2.0 wraps the raw model with:
 
@@ -10,7 +10,7 @@ OnaAI-2.0 wraps the raw model with:
 - An optional **FastAPI server** for local HTTP access.
 - **Config-driven** defaults (sampling params, backend, model path).
 
-> ⚠️ OnaAI-2.0 inherits VibeThinker-3B's scope. It is excellent at *verifiable* tasks (math, code, STEM) and is **not** a general-purpose open-domain chatbot. For broad knowledge tasks, use a larger general model.
+> ⚠️ OnaAI-2.0 is tuned for *verifiable* tasks (math, code, STEM) and is **not** a general-purpose open-domain chatbot. For broad knowledge tasks, use a larger general model.
 
 ---
 
@@ -23,12 +23,12 @@ OnaAI-2.0 wraps the raw model with:
   user ──▶  │  CLI / API  ──▶  ReasoningEngine          │
             │                      │                     │
             │                      ▼                     │
-            │              VibeThinkerModel              │
+            │               ReasoningModel               │
             │           (transformers | vLLM)            │
             │                      │                     │
             └──────────────────────┼─────────────────────┘
                                    ▼
-                          WeiboAI/VibeThinker-3B
+                       3B dense reasoning model
 ```
 
 ## Requirements
@@ -48,20 +48,24 @@ pip install -e ".[server]"
 
 ## Vendoring the model locally (download tokenizer + weights)
 
-By default OnaAI-2.0 pulls `WeiboAI/VibeThinker-3B` from the Hugging Face Hub on
-first use and caches it. To keep the tokenizer files and weights on local disk
-(e.g. for offline/air-gapped use), vendor them into `models/`:
+By default OnaAI-2.0 resolves the configured base model on first use and caches
+it. To keep the tokenizer files and weights on local disk (e.g. for
+offline/air-gapped use), vendor them into `models/`:
 
 ```bash
-# Full model + tokenizer -> ./models/VibeThinker-3B   (several GB)
+# Default: a small, CPU-friendly model + tokenizer
+# -> ./models/Qwen2.5-0.5B-Instruct
 python scripts/download_model.py
 
 # Tokenizer + config only (fast, no weights) -- handy for building the
 # data/training pipeline before downloading the full weights:
 python scripts/download_model.py --tokenizer-only
 
+# A larger model for GPU hardware:
+python scripts/download_model.py --repo <org>/<model>
+
 # Then point OnaAI-2.0 at the local copy:
-export ONAAI_MODEL_PATH=models/VibeThinker-3B
+export ONAAI_MODEL_PATH=models/Qwen2.5-0.5B-Instruct
 ```
 
 > Weights are git-ignored (`*.safetensors`, `models/`). Never commit multi-GB
@@ -103,19 +107,19 @@ onaai serve --host 127.0.0.1 --port 8000
 
 ## Training a replica (SFT → RL)
 
-OnaAI-2.0 includes a runnable replica of VibeThinker's architecture and
-**Spectrum-to-Signal** training recipe. Two scales share the same code:
+OnaAI-2.0 includes a runnable replica of the model architecture and its
+two-phase **SFT → RL** training recipe. Two scales share the same code:
 
 | Scale | Model | Tokenizer | Runs on |
 | ----- | ----- | --------- | ------- |
 | `tiny` | ~100K-param Qwen2-arch (random init) | small BPE trained on the data | **CPU, seconds** |
-| `vibethinker-3b` | real ~3B Qwen2 dims | real vendored tokenizer | GPU(s) |
+| `onaai-3b` | real ~3B Qwen2 dims | real vendored tokenizer | GPU(s) |
 
 > ⚠️ This reproduces the **architecture + tokenizer + training pipeline**, not
-> the real trained weights. VibeThinker's SSP corpus is private, so bring your
-> own verifiable-reasoning data (see [`data/README.md`](./data/README.md)).
-> Building from a preset yields *fresh random weights*; to start from the real
-> pretrained model, vendor it first (above) and point the scripts at that dir.
+> any pretrained weights. Bring your own verifiable-reasoning data (see
+> [`data/README.md`](./data/README.md)). Building from a preset yields *fresh
+> random weights*; to start from a real pretrained model, vendor it first
+> (above) and point the scripts at that dir.
 
 ### 1. Build a tiny replica (tokenizer + model)
 
@@ -123,7 +127,7 @@ OnaAI-2.0 includes a runnable replica of VibeThinker's architecture and
 python scripts/build_tiny_replica.py --out models/tiny-replica
 ```
 
-### 2. SFT — the "Spectrum" phase
+### 2. SFT — the diversity ("spectrum") phase
 
 Supervised fine-tuning on `{problem, reasoning, answer}` data. The target is
 `<think>{reasoning}</think>\boxed{answer}`, and prompt tokens are masked so the
@@ -133,11 +137,10 @@ loss only covers the completion.
 python scripts/train_sft.py --model models/tiny-replica --out checkpoints/sft
 ```
 
-### 3. RL — the "Signal" phase (GRPO-style)
+### 3. RL — the signal phase (GRPO-style)
 
 Group Relative Policy Optimization with a **verifiable reward** (the model is
 rewarded only when its extracted `\boxed{}` answer matches the ground truth).
-This is the open analogue of VibeThinker's MGPO.
 
 ```bash
 python scripts/train_rl.py --model checkpoints/sft --out checkpoints/rl
@@ -204,11 +207,11 @@ print(result.summary())
 ### Scaling to the real 3B
 
 ```bash
-# 1. vendor the real tokenizer (+ optionally weights)
-python scripts/download_model.py
+# 1. vendor the real tokenizer (+ optionally weights) for your target model
+python scripts/download_model.py --repo <org>/<model>
 # 2. build at real dimensions, or fine-tune the real weights directly
-python scripts/build_tiny_replica.py --preset vibethinker-3b \
-    --vocab-size 151936 --out models/vibethinker-3b-fresh
+python scripts/build_tiny_replica.py --preset onaai-3b \
+    --vocab-size 151936 --out models/onaai-3b-fresh
 # 3. SFT / RL with your own large verifiable dataset on GPU(s)
 ```
 
@@ -219,7 +222,7 @@ or with environment variables prefixed `ONAAI_` (e.g. `ONAAI_MODEL_PATH`).
 
 | Key                  | Default                  | Description                              |
 | -------------------- | ------------------------ | ---------------------------------------- |
-| `model_path`         | `WeiboAI/VibeThinker-3B` | HF repo id or local path                 |
+| `model_path`         | `models/Qwen2.5-0.5B-Instruct` | HF repo id or local path           |
 | `backend`            | `transformers`           | `transformers` or `vllm`                 |
 | `temperature`        | `1.0`                    | sampling temperature                     |
 | `top_p`              | `0.95`                   | nucleus sampling                         |
@@ -251,7 +254,7 @@ OnaAI-2.0/
 ├── src/onaai/
 │   ├── __init__.py
 │   ├── config.py        # config loading + env overrides
-│   ├── model.py         # VibeThinker-3B inference wrapper (transformers/vLLM)
+│   ├── model.py         # 3B inference wrapper (transformers/vLLM)
 │   ├── modeling.py      # build Qwen2-arch replica (3B + tiny presets)
 │   ├── engine.py        # ReasoningEngine: answer extraction
 │   ├── cli.py           # `onaai` command
@@ -277,8 +280,4 @@ OnaAI-2.0/
 
 ## License
 
-MIT — see [LICENSE](./LICENSE). VibeThinker-3B is also MIT-licensed by WeiboAI.
-
-## Acknowledgements
-
-Built on [VibeThinker-3B](https://huggingface.co/WeiboAI/VibeThinker-3B) by WeiboAI.
+MIT — see [LICENSE](./LICENSE).

@@ -1,6 +1,6 @@
 # OnaAI-2.0 demo configuration.
-# A real, small, pretrained model (Qwen2.5-0.5B-Instruct, the architecture
-# lineage VibeThinker-3B is built on) that actually solves simple math and
+# A real, small, pretrained model (Qwen2.5-0.5B-Instruct, the same Qwen2
+# architecture lineage OnaAI-2.0 uses) that actually solves simple math and
 # coding on CPU. Vendor it first:
 #
 #   python scripts/download_model.py --repo Qwen/Qwen2.5-0.5B-Instruct

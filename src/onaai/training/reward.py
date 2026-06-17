@@ -1,6 +1,6 @@
 """Verifiable reward for the RL phase.
 
-The core of VibeThinker's "Signal" stage is a *verifiable* reward: a model
+The core of the "signal" stage is a *verifiable* reward: a model
 completion is rewarded only if its extracted final answer matches the
 ground-truth answer. This module is pure-Python (no torch) and reuses the same
 answer-extraction logic as the inference engine, so training and serving agree

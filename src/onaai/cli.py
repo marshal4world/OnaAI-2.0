@@ -20,7 +20,7 @@ from .engine import ReasoningEngine
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="onaai",
-        description="OnaAI-2.0 — verifiable reasoning on top of VibeThinker-3B",
+        description="OnaAI-2.0 — a verifiable-reasoning assistant",
     )
     parser.add_argument("--version", action="version", version=f"OnaAI-2.0 {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)

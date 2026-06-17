@@ -1,13 +1,13 @@
-"""Architecture replica of VibeThinker-3B.
+"""Architecture replica for the OnaAI-2.0 reasoning model.
 
-VibeThinker-3B is a **dense decoder-only Transformer** built on Qwen2.5-Coder-3B,
-which uses the **Qwen2** architecture (RoPE, grouped-query attention, SwiGLU MLP,
-RMSNorm). This module builds a *randomly-initialized* model with that exact
-architecture at a chosen scale.
+The model is a **dense decoder-only Transformer** built on the **Qwen2**
+architecture (RoPE, grouped-query attention, SwiGLU MLP, RMSNorm). This module
+builds a *randomly-initialized* model with that exact architecture at a chosen
+scale.
 
 Two presets are provided:
 
-* ``"vibethinker-3b"`` — the real ~3B dimensions (for training on real hardware).
+* ``"onaai-3b"`` — the real ~3B dimensions (for training on real hardware).
   These mirror the public Qwen2.5-3B config; for an exact match, vendor the real
   ``config.json`` (``scripts/download_model.py``) and use
   :func:`config_from_pretrained`.
@@ -15,7 +15,7 @@ Two presets are provided:
   used by the end-to-end test.
 
 Note: building from a preset produces **fresh random weights** (a replica of the
-*architecture*, not the trained parameters). To start from the real pretrained
+*architecture*, not the trained parameters). To start from real pretrained
 weights, point at the vendored model directory instead.
 """
 
@@ -42,9 +42,9 @@ class ArchPreset:
     extra: Dict[str, Any] = field(default_factory=dict)
 
 
-# Real VibeThinker-3B / Qwen2.5-3B dimensions (approximate public config).
+# Real ~3B / Qwen2.5-3B dimensions (approximate public config).
 # vocab_size is supplied at build time from the actual tokenizer.
-VIBETHINKER_3B = ArchPreset(
+ONAAI_3B = ArchPreset(
     hidden_size=2048,
     intermediate_size=11008,
     num_hidden_layers=36,
@@ -68,7 +68,7 @@ TINY = ArchPreset(
 )
 
 PRESETS: Dict[str, ArchPreset] = {
-    "vibethinker-3b": VIBETHINKER_3B,
+    "onaai-3b": ONAAI_3B,
     "tiny": TINY,
 }
 
@@ -122,7 +122,7 @@ def build_model(preset_or_config: Any = "tiny", vocab_size: int = 32000, **overr
 def config_from_pretrained(path: str):
     """Load a ``Qwen2Config`` from a vendored model directory's ``config.json``.
 
-    Use this for an *exact* architecture match against the real VibeThinker-3B
+    Use this for an *exact* architecture match against the real pretrained model
     after running ``scripts/download_model.py``.
     """
     from transformers import Qwen2Config

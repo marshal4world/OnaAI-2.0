@@ -1,9 +1,9 @@
-"""Tokenizer utilities for the VibeThinker-3B replica.
+"""Tokenizer utilities for the OnaAI-2.0 model replica.
 
 Two paths, one interface (both return a 🤗 ``PreTrainedTokenizerFast``-compatible
 tokenizer with a Qwen-style chat template):
 
-* :func:`load_tokenizer` — load the **real** vendored VibeThinker/Qwen2.5
+* :func:`load_tokenizer` — load the **real** vendored Qwen2-compatible
   tokenizer from a local directory (after ``scripts/download_model.py``).
 * :func:`train_tiny_tokenizer` — train a small **byte-level BPE** tokenizer on
   given texts. Fully offline; used by the end-to-end test so it needs no

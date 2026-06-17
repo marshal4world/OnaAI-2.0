@@ -1,4 +1,4 @@
-"""Evaluation harness for the VibeThinker-3B replica."""
+"""Evaluation harness for the OnaAI-2.0 model replica."""
 
 from .evaluate import (
     EvalConfig,

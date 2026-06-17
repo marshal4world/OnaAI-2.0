@@ -1,4 +1,4 @@
-"""Supervised fine-tuning (the "Spectrum" phase) for the VibeThinker replica.
+"""Supervised fine-tuning (the "spectrum" phase) for the OnaAI-2.0 replica.
 
 Thin wrapper over 🤗 ``Trainer`` with prompt-masked labels. Heavy imports are
 local so the rest of the package stays import-light.

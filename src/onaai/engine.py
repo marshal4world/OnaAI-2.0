@@ -1,10 +1,10 @@
 """High-level reasoning engine for OnaAI-2.0.
 
-The engine sits on top of :class:`~onaai.model.VibeThinkerModel` and is
+The engine sits on top of :class:`~onaai.model.ReasoningModel` and is
 responsible for turning a raw model completion into a structured result:
 separating the chain-of-thought ("reasoning") from the final answer.
 
-VibeThinker-3B (like most reasoning models) tends to emit a long thinking
+The model (like most reasoning models) tends to emit a long thinking
 trace and then a final answer. We support two common conventions:
 
   * ``<think> ... </think>`` blocks wrapping the reasoning.
@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from .config import Config, load_config
-from .model import VibeThinkerModel
+from .model import ReasoningModel
 
 _THINK_RE = re.compile(r"<think>(.*?)</think>", re.DOTALL | re.IGNORECASE)
 _BOXED_RE = re.compile(r"\\boxed\{")
@@ -58,9 +58,9 @@ class ReasoningResult:
 
 
 class ReasoningEngine:
-    """Orchestrates prompting VibeThinker-3B and parsing its output."""
+    """Orchestrates prompting the model and parsing its output."""
 
-    def __init__(self, model: VibeThinkerModel, config: Optional[Config] = None) -> None:
+    def __init__(self, model: ReasoningModel, config: Optional[Config] = None) -> None:
         self.model = model
         self.config = config or model.config
 
@@ -68,7 +68,7 @@ class ReasoningEngine:
     def from_default(cls, config_path: Optional[str] = None) -> "ReasoningEngine":
         """Build an engine from layered configuration (see :func:`load_config`)."""
         config = load_config(config_path)
-        return cls(VibeThinkerModel(config), config)
+        return cls(ReasoningModel(config), config)
 
     def solve(self, prompt: str, **overrides) -> ReasoningResult:
         """Run the model on ``prompt`` and return a parsed :class:`ReasoningResult`."""
