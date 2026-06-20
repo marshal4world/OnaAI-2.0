@@ -49,6 +49,10 @@ class Config:
             raise ValueError(f"temperature out of range [0, 2]: {self.temperature}")
         if not 0.0 < self.top_p <= 1.0:
             raise ValueError(f"top_p must be in (0, 1]: {self.top_p}")
+        # top_k == -1 disables top-k (vLLM/SGLang style); otherwise it must be
+        # a positive integer. 0 and other negatives are invalid.
+        if self.top_k != -1 and self.top_k < 1:
+            raise ValueError(f"top_k must be -1 (disabled) or >= 1: {self.top_k}")
         if self.max_new_tokens <= 0:
             raise ValueError(f"max_new_tokens must be positive: {self.max_new_tokens}")
 
